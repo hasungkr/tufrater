@@ -1,5 +1,4 @@
-<!-- markdownlint-disable-next-line MD033 -->
-# <img src="https://i.namu.wiki/i/PlYQNZfnXmQSw0Gysb94JmSlt85rPwKxxKPFa6r31GEeWG0BtZiEvhNIo0rxACC6VC_G6QF-pskFd_vKxFQ6ug.webp" width="40" alt="TUFourm Logo"> TUFRater
+![TUFRater](https://shieldcn.dev/header/glow.svg?title=TUFRater&subtitle=An+AI+that+can+accurately+estimate+an+unrated+level%E2%80%99s+difficulty+on+the+PGU+scale.&logo=https%3A%2F%2Fgithub.com%2FT21C%2Ft21c-web-frontend%2Fblob%2Fmain%2Fsrc%2Fassets%2Ftuf-logo%2Flogo.png%3Fraw%3Dtrue&mode=dark)
 
 ## 📌 What It Is
 
