@@ -4,38 +4,49 @@ Parses .adofai files, extracting twirl count, and speed_change_count, merges the
 and saves the results back into levels.db.
 """
 
-import time
 import pandas as pd
 import requests
 
+from concurrent.futures import ThreadPoolExecutor
+
 from core import extract_gameplay_features
 from db import get_db
+
+MAX_WORKERS = 20
 
 def load_raw_levels():
     with get_db() as con:
         return pd.read_sql_query("SELECT * FROM raw_levels", con)
 
+def parse_one_level(row):
+
+    try:
+        resp = requests.get(row["dlLink"], timeout=10)
+        level_json = resp.json()
+
+        if "error" in level_json:
+            print(f"Skipping id {row['id']}: {level_json['error']}")
+            return None
+
+        features = extract_gameplay_features(level_json)
+        features["id"] = row["id"]
+        return features
+    except Exception as e:
+        print(f"Error: Failed on id {row['id']} ({e})")
+        return None
+
 def parse_all_gameplay_features(df):
+    rows = df.to_dict("records")
+
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        results = list(executor.map(parse_one_level, rows))
+
     gameplay_features = []
 
-    for i, row in df.iterrows():
-        try:
-            resp = requests.get(row["dlLink"], timeout=10)
-            level_json = resp.json()
-
-            # Filters any errors
-            if "error" in level_json:
-                print(f"Skipping id {row['id']}: {level_json['error']}")
-                continue
-
-            features = extract_gameplay_features(level_json)
-            features["id"] = row["id"]
-            gameplay_features.append(features)
-        except Exception as e:
-            print(f"Error: Failed on id {row['id']} ({e})")
-
-        time.sleep(0.5)
-    print(f"Succesfully gained features for {len(gameplay_features)} levels.")
+    for r in results:
+        if r is not None:
+            gameplay_features.append(r)
+    print(f"Successfully gained features for {len(gameplay_features)} levels.")
     return gameplay_features
 
 def merge_and_save(df, gameplay_features):

@@ -11,8 +11,11 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split 
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from pathlib import Path
 
 from db import get_db
+
+MODEL_PATH = Path(__file__).resolve().parent / "data" / "difficulty_model.txt"
 
 num_round = 100
 params = {
@@ -46,7 +49,6 @@ def train(df):
     print(f"RMSE: {rmse:.2f}")
 
     importance = pd.Series(model.feature_importance(), index=X.columns).sort_values(ascending=False)
-    model.save_model("difficulty_model.txt")
     print(importance)
 
     return model
@@ -54,5 +56,5 @@ def train(df):
 if __name__ == "__main__":
     dataset = load_data()
     trained_model = train(dataset)
-    trained_model.save_model("difficulty_model.txt")
-    print("Model saved to difficulty_model.txt")
+    trained_model.save_model(MODEL_PATH)
+    print(f"Model saved to {MODEL_PATH}")

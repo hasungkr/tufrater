@@ -4,7 +4,6 @@ Import what you need here. E.g.
     from core.py import load_model, predict_difficulty
 """
 
-import requests
 import pandas as pd
 import lightgbm as lgb
 

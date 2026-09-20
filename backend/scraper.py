@@ -36,6 +36,38 @@ def fetch_all_levels():
     print(f"Pulled {len(all_levels)} levels total")
     return all_levels
 
+def save_raw_levels(rated_levels):
+    if not rated_levels:
+        print("Error! rated_levels is empty, nothing saved.")
+        return
+ 
+    df = pd.DataFrame(rated_levels)
+    schema_columns = [
+        "id", "song", "creator", "difficulty", "difficulty_number", "tilecount",
+        "levelLengthInMs", "bpm", "tuforums_link", "dlLink", "density",
+    ]
+    df_to_save = df.reindex(columns=schema_columns)
+ 
+    with get_db() as con:
+        con.execute("""
+            CREATE TABLE IF NOT EXISTS raw_levels (
+                id INTEGER PRIMARY KEY,
+                song TEXT,
+                creator TEXT,
+                difficulty TEXT,
+                difficulty_number REAL,
+                tilecount INTEGER,
+                levelLengthInMs INTEGER,
+                bpm REAL,
+                tuforums_link TEXT,
+                dlLink TEXT,
+                density REAL
+            )
+        """)
+        df_to_save.to_sql("raw_levels", con, if_exists="replace", index=False)
+ 
+    print(f"Database saved with {len(df_to_save)} levels (no gameplay features yet - run parser.py next).")
+
 def build_rated_levels(all_levels):
     rated_levels = []
 
